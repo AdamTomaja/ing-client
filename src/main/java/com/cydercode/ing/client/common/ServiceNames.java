@@ -1,6 +1,6 @@
 package com.cydercode.ing.client.common;
 
-public class Services {
+public class ServiceNames {
 
     // Prepare for login, get key, salt and mask
     public static final String RENCHECKLOGIN = "renchecklogin";

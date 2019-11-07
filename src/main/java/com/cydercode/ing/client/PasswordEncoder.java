@@ -8,8 +8,6 @@ import org.apache.commons.codec.digest.HmacUtils;
 @Slf4j
 public class PasswordEncoder {
 
-    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-
     public String createPwdHash(String password, CheckLoginResponseData loginData) {
         String maskAndSalt = mixSaltAndMaskData(password, loginData.getMask(), loginData.getSalt());
         log.info("Masked and salted: {}", maskAndSalt);

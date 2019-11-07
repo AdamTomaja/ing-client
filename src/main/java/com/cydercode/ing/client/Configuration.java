@@ -1,7 +1,6 @@
 package com.cydercode.ing.client;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 @Builder
