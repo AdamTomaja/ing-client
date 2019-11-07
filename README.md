@@ -1,4 +1,9 @@
 # ING Bank Java Client
+The library allows to login to ING bank system and fetch accounts and also transactions history.
+
+For educational purposes, it's not recommended to use this in productions environments.
+ 
+
 ## Example code
 ```java
  Configuration configuration = Configuration.builder()
