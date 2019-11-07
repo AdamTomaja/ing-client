@@ -8,7 +8,7 @@ import lombok.ToString;
 @ToString
 public class AccountsResponse implements IngResponse {
 
-    private String status;
+    private Status status;
     private AccountsResponseData data;
     private String code;
     private String msg;

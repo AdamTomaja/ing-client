@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class HistoryResponse implements IngResponse {
 
-    private String status;
+    private Status status;
     private HistoryResponseData data;
     private String code;
     private String msg;

@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class CheckLoginResponse implements IngResponse {
 
-    private String status;
+    private Status status;
     private String msg;
     private String code;
     private CheckLoginResponseData data;

@@ -74,16 +74,22 @@ public class IngConnector {
         log.info("Calling service: {} with request: {}", serviceName, requestEntity);
         ResponseEntity<T> response = restTemplate.exchange(createUrl(serviceName), HttpMethod.POST, requestEntity, responseClass);
         log.info("Response: {}", response);
+        storeCookies(response);
+        handleError(response.getBody());
+        return response;
+    }
+
+    private void storeCookies(ResponseEntity response) {
         List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
         if(cookies != null) {
             this.cookies = cookies;
         }
+    }
 
-        if("ERROR".equals(response.getBody().getStatus())) {
-            throw new IngException(response.getBody());
+    private <T extends IngResponse> void handleError(IngResponse response) throws IngException {
+        if(IngResponse.Status.ERROR.equals(response.getStatus())) {
+            throw new IngException(response);
         }
-
-        return response;
     }
 
     private HttpHeaders createHeaders() {
