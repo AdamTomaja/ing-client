@@ -10,4 +10,7 @@ public class ServiceNames {
 
     // Get history
     public static final String RENGETFURY = "rengetfury";
+
+    // Get accounts and cards
+    public static final String RENGETALLINGPRDS = "rengetallingprds";
 }

@@ -1,5 +1,6 @@
 package com.cydercode.ing.client;
 
+import com.cydercode.ing.client.accounts.AccountsResponse;
 import com.cydercode.ing.client.checklogin.CheckLoginRequest;
 import com.cydercode.ing.client.checklogin.CheckLoginResponse;
 import com.cydercode.ing.client.common.IngRequest;
@@ -30,13 +31,13 @@ public class IngClient {
 
     private final Configuration configuration;
     private final PasswordEncoder passwordEncoder = new PasswordEncoder();
-    private List<String> lastHeaders;
+    private List<String> cookies;
 
     public IngClient(Configuration configuration) {
         this.configuration = configuration;
     }
 
-    public LoginResponse getToken() {
+    public LoginResponse login() {
         CheckLoginRequest checkLoginRequest = CheckLoginRequest.builder().login(configuration.getLogin()).build();
         ResponseEntity<CheckLoginResponse> response = callService(checkLoginRequest, ServiceNames.RENCHECKLOGIN, CheckLoginResponse.class);
         return callService(createLoginRequest(response), ServiceNames.RENLOGIN, LoginResponse.class).getBody();
@@ -48,6 +49,10 @@ public class IngClient {
                     .login(configuration.getLogin())
                     .pwdhash(passwordEncoder.createPwdHash(configuration.getPassword(), response.getBody().getData()))
                     .build();
+    }
+
+    public AccountsResponse getAccounts(LoginResponseData loginResponseData) {
+        return callService(null, ServiceNames.RENGETALLINGPRDS, AccountsResponse.class, loginResponseData.getToken()).getBody();
     }
 
     public HistoryResponse getHistory(LoginResponseData loginResponseData, HistoryRequest historyRequest) {
@@ -67,7 +72,10 @@ public class IngClient {
         log.info("Calling service: {} with request: {}", serviceName, requestEntity);
         ResponseEntity<T> response = restTemplate.exchange(createUrl(serviceName), HttpMethod.POST, requestEntity, responseClass);
         log.info("Response: {}", response);
-        lastHeaders = response.getHeaders().get(HttpHeaders.SET_COOKIE);
+        List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
+        if(cookies != null) {
+            this.cookies = cookies;
+        }
         return response;
     }
 
@@ -75,8 +83,8 @@ public class IngClient {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         httpHeaders.add(X_WOLF_PROTECTION_HEADER, String.valueOf((Math.random())));
-        if(lastHeaders != null) {
-            httpHeaders.addAll(HttpHeaders.COOKIE, lastHeaders);
+        if(cookies != null) {
+            httpHeaders.addAll(HttpHeaders.COOKIE, cookies);
         }
 
         return httpHeaders;
