@@ -1,9 +1,10 @@
 package com.cydercode.ing.client.history;
 
+import com.cydercode.ing.client.common.IngResponse;
 import lombok.Data;
 
 @Data
-public class HistoryResponse {
+public class HistoryResponse implements IngResponse {
 
     private String status;
     private HistoryResponseData data;

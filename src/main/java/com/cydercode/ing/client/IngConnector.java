@@ -3,7 +3,9 @@ package com.cydercode.ing.client;
 import com.cydercode.ing.client.accounts.AccountsResponse;
 import com.cydercode.ing.client.checklogin.CheckLoginRequest;
 import com.cydercode.ing.client.checklogin.CheckLoginResponse;
+import com.cydercode.ing.client.common.IngException;
 import com.cydercode.ing.client.common.IngRequest;
+import com.cydercode.ing.client.common.IngResponse;
 import com.cydercode.ing.client.common.ServiceNames;
 import com.cydercode.ing.client.history.HistoryRequest;
 import com.cydercode.ing.client.history.HistoryResponse;
@@ -22,7 +24,7 @@ import java.util.List;
 
 
 @Slf4j
-public class IngClient {
+public class IngConnector {
 
     private static final String X_WOLF_PROTECTION_HEADER = "X-Wolf-Protection";
     private static final String LOCALE = "PL";
@@ -33,11 +35,11 @@ public class IngClient {
     private final PasswordEncoder passwordEncoder = new PasswordEncoder();
     private List<String> cookies;
 
-    public IngClient(Configuration configuration) {
+    public IngConnector(Configuration configuration) {
         this.configuration = configuration;
     }
 
-    public LoginResponse login() {
+    public LoginResponse login() throws IngException {
         CheckLoginRequest checkLoginRequest = CheckLoginRequest.builder().login(configuration.getLogin()).build();
         ResponseEntity<CheckLoginResponse> response = callService(checkLoginRequest, ServiceNames.RENCHECKLOGIN, CheckLoginResponse.class);
         return callService(createLoginRequest(response), ServiceNames.RENLOGIN, LoginResponse.class).getBody();
@@ -51,20 +53,20 @@ public class IngClient {
                     .build();
     }
 
-    public AccountsResponse getAccounts(LoginResponseData loginResponseData) {
+    public AccountsResponse getAccounts(LoginResponseData loginResponseData) throws IngException {
         return callService(null, ServiceNames.RENGETALLINGPRDS, AccountsResponse.class, loginResponseData.getToken()).getBody();
     }
 
-    public HistoryResponse getHistory(LoginResponseData loginResponseData, HistoryRequest historyRequest) {
+    public HistoryResponse getHistory(LoginResponseData loginResponseData, HistoryRequest historyRequest) throws IngException {
         return callService(historyRequest, ServiceNames.RENGETFURY, HistoryResponse.class, loginResponseData.getToken())
                 .getBody();
     }
 
-    private <T> ResponseEntity<T> callService(Object data, String serviceName, Class<T> responseClass) {
+    private <T extends IngResponse> ResponseEntity<T> callService(Object data, String serviceName, Class<T> responseClass) throws IngException {
         return callService(data, serviceName, responseClass, "");
     }
 
-    private <T> ResponseEntity<T> callService(Object data, String serviceName, Class<T> responseClass, String token) {
+    private <T extends IngResponse> ResponseEntity<T> callService(Object data, String serviceName, Class<T> responseClass, String token) throws IngException {
         RestTemplate restTemplate = new RestTemplate();
         IngRequest ingRequest = createRequest(data, token);
         HttpHeaders httpHeaders = createHeaders();
@@ -76,6 +78,11 @@ public class IngClient {
         if(cookies != null) {
             this.cookies = cookies;
         }
+
+        if("ERROR".equals(response.getBody().getStatus())) {
+            throw new IngException(response.getBody());
+        }
+
         return response;
     }
 

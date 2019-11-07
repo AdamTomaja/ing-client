@@ -1,9 +1,10 @@
 package com.cydercode.ing.client.login;
 
+import com.cydercode.ing.client.common.IngResponse;
 import lombok.Data;
 
 @Data
-public class LoginResponse {
+public class LoginResponse implements IngResponse {
 
     private String status;
     private String code;
